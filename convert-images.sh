@@ -26,7 +26,7 @@ remove_live_photo() {
 	fi
 
 	local photo_file="${1}"
-	local video_file="${1%.mov}"
+	local video_file="${1%.heic}.mov"
 
 	if [ ! -r "${video_file}" ]; then
 		return
