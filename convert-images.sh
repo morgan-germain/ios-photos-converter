@@ -10,7 +10,10 @@
 # - Remove live photos because they are doubles with HEIC version
 
 # Requirements
-#	sudo apt install libheif-examples ffmpeg exiftool
+#   Debian
+#     sudo apt install libheif-examples ffmpeg exiftool
+#   Archlinux
+#     sudo pacman -S libheif perl-image-exiftool
 
 FOLDER=/media/myPhotoFolder
 
