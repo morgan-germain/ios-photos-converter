@@ -48,6 +48,17 @@ remove_live_photo() {
 	fi	       
 }
 
+convert_heif_photo() {
+	if [ $# -ne 1 ]; then
+		echo 'Need one file argument' 1>&2
+		exit 1
+	fi
+
+	local photo="${1%.heic}"
+
+	heif-convert "${photo}.heic" "${photo}.jpg"
+	rm -f "${photo}.heic" "${photo}-depth.jpg"
+}
 
 echo Finding HEIC photo files that are JPG instead
 echo -----------------
@@ -66,13 +77,12 @@ echo Converting photos
 echo -----------------
 find "${FOLDER}" \
 	-type f \
-	-iname '*.heic' \
-	-exec sh -c 'echo "$1" && nice -n19 heif-convert "$1" "${1%.heic}.jpg" && rm "$1"' _ {} \;
+	-iname '*.heic' | while read file; do convert_heif_photo "${file}"; done
 
 echo Converting videos
 echo -----------------
 find "${FOLDER}" \
 	-type f \
 	-iname '*.mov' \
-	-exec sh -c 'echo "$1" && nice -n19 ffmpeg -y -i "$1" "${1%.mov}.mp4" && rm "$1"' _ {} \;
+	-exec sh -c 'echo "$1" && ffmpeg -y -i "$1" "${1%.mov}.mp4" && rm "$1"' _ {} \;
 
