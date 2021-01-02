@@ -17,10 +17,13 @@
 
 FOLDER=/media/myPhotoFolder
 
+# If photos need to be converted to JPEG format, set this option to true
+CONVERT_HEIF_PHOTOS_TO_JPEG=false
+
 # I am built to run on an Raspberry Pi 4
 # so I don't want to overheat and photo
 # conversion is less urgent than web server
-renice --priority +19 --pid $$ 
+renice --priority +19 --pid $$
 
 remove_live_photo() {
 	if [ $# -ne 1 ]; then
@@ -60,24 +63,26 @@ convert_heif_photo() {
 	rm -f "${photo}.heic" "${photo}-depth.jpg"
 }
 
-echo Finding HEIC photo files that are JPG instead
-echo -----------------
-find "${FOLDER}" \
-	-type f \
-	-iname '*.heic' \
-	-exec sh -c 'file "$1" | grep --silent JPEG && echo "$1" && mv "$1" "${1%.heic}.jpg"' _ {} \;
-
 echo Removing live photos since they are doubles
 echo -----------------
 find "${FOLDER}" \
 	-type f\
 	-iname '*.heic' | while read file; do remove_live_photo "${file}"; done
 
-echo Converting photos
-echo -----------------
-find "${FOLDER}" \
-	-type f \
-	-iname '*.heic' | while read file; do convert_heif_photo "${file}"; done
+if [ "${CONVERT_HEIF_PHOTOS_TO_JPEG}" = true ]; then
+	echo Finding HEIC photo files that are JPG instead
+	echo -----------------
+	find "${FOLDER}" \
+		-type f \
+		-iname '*.heic' \
+		-exec sh -c 'file "$1" | grep --silent JPEG && echo "$1" && mv "$1" "${1%.heic}.jpg"' _ {} \;
+
+	echo Converting photos
+	echo -----------------
+	find "${FOLDER}" \
+		-type f \
+		-iname '*.heic' | while read file; do convert_heif_photo "${file}"; done
+fi
 
 echo Converting videos
 echo -----------------
